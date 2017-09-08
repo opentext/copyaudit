@@ -130,6 +130,9 @@ func handle(remote io.ReadCloser, cno int) {
 				io.ReadFull(r, blob)
 				r.Discard(discard)
 				text = fmt.Sprintf("copy %q", blob)
+				if discard > 0 {
+					text += fmt.Sprintf("… plus %d discarded bytes", discard)
+				}
 			case "Image":
 				tok, err := cborRead(r)
 				if err != nil {
