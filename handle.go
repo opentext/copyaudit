@@ -68,6 +68,7 @@ func handle(remote io.ReadCloser, cno int) {
 		ip := ""
 		text := ""
 		user := ""
+		ext := "jpeg"
 
 		for i := uint64(0); i < itms.value; i++ {
 			key, err := cborReadString(r)
@@ -97,6 +98,13 @@ func handle(remote io.ReadCloser, cno int) {
 				s, err := cborReadString(r)
 				if err == nil {
 					ip = "ip " + s
+				}
+			case "ImageType":
+				if s, err := cborReadString(r); err == nil {
+					pos := strings.LastIndexAny(s, "/\\")
+					if pos >= 0 {
+						ext = s[pos+1:]
+					}
 				}
 			case "Text":
 				tok, err := cborRead(r)
@@ -142,7 +150,7 @@ func handle(remote io.ReadCloser, cno int) {
 					path = filepath.Join(path, filepath.Clean(user))
 					os.Mkdir(path, 0640)
 				}
-				fn := fmt.Sprintf("%d.jpeg", time.Now().UnixNano())
+				fn := fmt.Sprintf("%d.%s", time.Now().UnixNano(), ext)
 				path = filepath.Join(path, fn)
 
 				jpeg, err := os.Create(path)
