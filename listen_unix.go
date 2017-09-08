@@ -27,6 +27,7 @@ package main
 
 import (
 	"net"
+	"os"
 	"runtime"
 )
 
@@ -48,6 +49,10 @@ func listenAndServe() error {
 	name := "/tmp/.X11-unix/ETXaudit"
 	if runtime.GOOS == "linux" {
 		name = "@Exceed TurboX Copy Audit"
+	} else {
+		if err := os.Remove(name); err != nil {
+			return err
+		}
 	}
 	listen, err := net.Listen("unix", name)
 	if err != nil {
