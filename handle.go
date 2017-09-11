@@ -151,7 +151,7 @@ func handle(remote io.ReadCloser, cno int) {
 				path := *dir
 				if user != "" {
 					path = filepath.Join(path, filepath.Clean(user))
-					os.Mkdir(path, 0640)
+					os.Mkdir(path, 0750)
 				}
 				fn := fmt.Sprintf("%d.%s", time.Now().UnixNano(), ext)
 				path = filepath.Join(path, fn)
