@@ -50,9 +50,7 @@ func listenAndServe() error {
 	if runtime.GOOS == "linux" {
 		name = "@Exceed TurboX Copy Audit"
 	} else {
-		if err := os.Remove(name); err != nil {
-			return err
-		}
+		os.Remove(name)
 	}
 	listen, err := net.Listen("unix", name)
 	if err != nil {
