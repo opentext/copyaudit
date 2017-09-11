@@ -77,6 +77,8 @@ func handle(remote io.ReadCloser, cno int) {
 				return
 			}
 			switch key {
+			default:
+				cborDiscard(r)
 			case "Display":
 				dpyno, err := cborRead(r)
 				if err != nil {
