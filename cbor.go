@@ -64,6 +64,13 @@ const (
 	// Types added for convenience (that cannot be encoded by the cbor wire format)
 	cborBreak = 8
 )
+const (
+	// Values defined by the cbor spec for the cborMisc type
+	cborMiscFalse     = 20
+	cborMiscTrue      = 21
+	cborMiscNull      = 22
+	cborMiscUndefined = 23
+)
 
 func cborRead(r *bufio.Reader) (c cborObject, err error) {
 	t, err := r.ReadByte()

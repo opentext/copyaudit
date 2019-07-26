@@ -66,8 +66,11 @@ func handle(remote io.ReadCloser, cno int) {
 		app := ""
 		dpy := ""
 		ip := ""
+		tip := ""
 		text := ""
 		user := ""
+		size := ""
+		file := ""
 		ext := "jpeg"
 
 		for i := uint64(0); i < itms.value; i++ {
@@ -100,6 +103,11 @@ func handle(remote io.ReadCloser, cno int) {
 				s, err := cborReadString(r)
 				if err == nil {
 					ip = "ip " + s
+				}
+			case "TransferIPAddress":
+				s, err := cborReadString(r)
+				if err == nil {
+					tip = "transfer ip " + s
 				}
 			case "ImageType":
 				if s, err := cborReadString(r); err == nil {
@@ -170,6 +178,43 @@ func handle(remote io.ReadCloser, cno int) {
 					return
 				}
 				text = "copy " + path
+			case "FileSize":
+				siz, err := cborRead(r)
+				if err != nil {
+					msg <- err.Error()
+					return
+				}
+				if siz.typ == cborUnsigned {
+					size = fmt.Sprintf("%d bytes", siz.value)
+				} else {
+					cborDiscardBody(r, siz)
+				}
+			case "File":
+				s, err := cborReadString(r)
+				if err == nil {
+					file = fmt.Sprintf("file %#q", s)
+				}
+			case "FileStart", "FileComplete":
+				tok, err := cborRead(r)
+				if err != nil {
+					msg <- err.Error()
+					return
+				}
+				if tok.typ != cborMisc {
+					cborDiscardBody(r, tok)
+					continue
+				}
+				if tok.value == cborMiscFalse {
+					text = "receiving"
+					if key == "FileComplete" {
+						text = "received"
+					}
+				} else {
+					text = "sending"
+					if key == "FileComplete" {
+						text = "sent"
+					}
+				}
 			}
 		}
 		var out []string
@@ -182,8 +227,17 @@ func handle(remote io.ReadCloser, cno int) {
 		if ip != "" {
 			out = append(out, ip)
 		}
+		if tip != "" {
+			out = append(out, tip)
+		}
 		if app != "" {
 			out = append(out, app)
+		}
+		if file != "" {
+			out = append(out, file)
+		}
+		if size != "" {
+			out = append(out, size)
 		}
 		if text != "" {
 			out = append(out, text)

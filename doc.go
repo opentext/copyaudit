@@ -47,10 +47,20 @@ http://cbor.io and/or RFC 7049.
 
 Each audit/copy event is a single CBOR Map. The Map may contain any combination
 of the following entries (with CBOR type in brackets), except that it shall not
-contain both Text and Image. Additional entries not specified here may be
-present.
+contain more than one of Text, Image, FileStart, or FileComplete. Additional
+entries not specified here may be present.
 
  - Display (Unsigned) is the display number of the ETX proxy.
+
+ - File (String) is the name of the file copied by the user.
+
+ - FileComplete (bool) is true if the file transferred from the proxy to the
+   desktop, and false if the file transferred from the desktop to the proxy.
+
+ - FileStart (bool) is true if the file will transfer from the proxy to the
+   desktop, and false if the file will transfer from the desktop to the proxy.
+
+ - FileSize (Unsigned) is the length (in bytes) of the file copied by the user.
 
  - Image (Binary) is the image copied by the user.
 
@@ -60,6 +70,10 @@ present.
  - IPAddress (String) is the IP address of the remote user's computer (not the
    ETX proxy).
 
+ - TransferIPAddress (String) is the IP address of the file transfer computer
+   (not the user's desktop or the ETX proxy). This field is not present when the
+   file transfer is exchanged with the ETX proxy itself.
+
  - Text (Binary) is the text copied. It is not a CBOR String because it may be
    any text type supported by X.
 
@@ -67,8 +81,9 @@ present.
 
  - XApp (String) is the name of the ETX profile the user is running.
 
-The ETX proxy will send Text or Image last in the Map, so the other fields can
-inform the disposition of the Text or Image.
+The ETX proxy will send Text, Image, FileStart, or FileComplete last in the Map,
+so the other fields can inform the disposition of the Text, Image, FileStart, or
+FileComplete.
 
 There is no data sent from the audit daemon to ETX. ETX does not want to wait
 for confirmation that the audit message has been logged. Attempting to write
