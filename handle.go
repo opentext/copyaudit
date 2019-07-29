@@ -143,7 +143,7 @@ func handle(remote io.ReadCloser, cno int) {
 				if discard > 0 {
 					text += fmt.Sprintf("… plus %d discarded bytes", discard)
 				}
-			case "Image":
+			case "Image", "Print":
 				tok, err := cborRead(r)
 				if err != nil {
 					msg <- err.Error()
@@ -154,7 +154,7 @@ func handle(remote io.ReadCloser, cno int) {
 					continue
 				}
 				if tok.value > 0x7FFFFFFF {
-					msg <- fmt.Sprintf("%simage size %d too large", prefix, tok.value)
+					msg <- fmt.Sprintf("%s%s size %d too large", prefix, strings.ToLower(key), tok.value)
 					return
 				}
 
@@ -162,6 +162,9 @@ func handle(remote io.ReadCloser, cno int) {
 				if user != "" {
 					path = filepath.Join(path, filepath.Clean(user))
 					os.Mkdir(path, 0750)
+				}
+				if key == "Print" {
+					ext = "print"
 				}
 				fn := fmt.Sprintf("%d.%s", time.Now().UnixNano(), ext)
 				path = filepath.Join(path, fn)
@@ -177,7 +180,11 @@ func handle(remote io.ReadCloser, cno int) {
 					msg <- fmt.Sprintf("%serror writing %s: %s", prefix, path, err.Error())
 					return
 				}
-				text = "copy " + path
+				text = "copy "
+				if key == "Print" {
+					text = "print "
+				}
+				text += path
 			case "FileSize":
 				siz, err := cborRead(r)
 				if err != nil {
