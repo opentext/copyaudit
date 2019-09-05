@@ -100,9 +100,9 @@ func handle(remote io.ReadCloser, cno int) {
 					app = "app " + s
 				}
 			case "IPAddress":
-				s, err := cborReadString(r)
+				s, err := cborReadStrings(r)
 				if err == nil {
-					ip = "ip " + s
+					ip = "ip " + strings.Join(s, ";")
 				}
 			case "TransferIPAddress":
 				s, err := cborReadString(r)

@@ -67,8 +67,8 @@ Additional entries not specified here may be present.
  - ImageType (String) is the name of the X11 protocol atom describing the image
    (nominally the image's MIME type).
 
- - IPAddress (String) is the IP address of the remote user's computer (not the
-   ETX proxy).
+ - IPAddress (String, or Array of String) is the IP address of the remote
+   user's computer (not the ETX proxy) or computers (when sharing).
 
  - Print (Binary) is the first part of the document printed by the user
    (limited to proxy.CopyAuditPrintLimit bytes).

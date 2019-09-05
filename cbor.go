@@ -129,6 +129,39 @@ func cborReadString(r *bufio.Reader) (string, error) {
 	return string(buf), nil
 }
 
+func cborReadStrings(r *bufio.Reader) ([]string, error) {
+	c, err := cborRead(r)
+	if err != nil {
+		return nil, err
+	}
+	if c.typ != cborString && c.typ != cborArray {
+		err := cborDiscardBody(r, c)
+		if err == nil {
+			err = errors.New("Expected String or Array, got " + c.String())
+		}
+		return nil, err
+	}
+
+	var rv []string
+	if c.typ == cborArray {
+		for i := uint64(0); i < c.value; i++ {
+			s, err := cborReadString(r)
+			if err != nil {
+				return nil, err
+			}
+			rv = append(rv, s)
+		}
+	} else {
+		buf := make([]byte, int(c.value))
+		_, err = io.ReadFull(r, buf)
+		if err != nil {
+			return nil, err
+		}
+		rv = []string{string(buf)}
+	}
+	return rv, nil
+}
+
 func cborDiscard(r *bufio.Reader) (err error) {
 	c, err := cborRead(r)
 	if err != nil {
